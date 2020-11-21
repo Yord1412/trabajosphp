@@ -12,6 +12,21 @@
 				
 				$categoryController->store($name,$description,$status);
 				break;
+				
+			case 'update':
+				$name = strip_tags($_POST['name']);
+				$description = strip_tags($_POST['description']);
+				$status = strip_tags($_POST['status']);
+				$id = strip_tags($_POST['id']);
+				
+				$categoryController->update($id,$name,$description,$status);
+				break;
+
+			case 'destroy':
+
+				$id = strip_tags($_POST['id']);
+				$categoryController->destroy($id);
+				break;
 		}
 	}
 
@@ -50,11 +65,43 @@
 					$prepared_query = $conn->prepare($query);
 					$prepared_query->bind_param('sss',$name,$description,$status);
 					if ($prepared_query->execute()) {
-						
+						$_SESSION['success'] = "el registro se ha guardado correctamente";
+
 						header("Location:".$_SERVER['HTTP_REFERER']);
 
 					}
 					else{
+						$_SESSION['error'] = 'verifique los datos envíados';
+
+						header("Location:".$_SERVER['HTTP_REFERER']);
+					}
+				}
+				else{
+					$_SESSION['error'] = 'verifique la información del formulario';
+
+					header("Location:".$_SERVER['HTTP_REFERER']);
+				}
+			}
+			else{
+				$_SESSION['error'] = 'verifique la conexion';
+
+				header("Location:".$_SERVER['HTTP_REFERER']);
+			}
+		}
+
+		public function update($id,$name,$description,$status){
+			$conn = connect();
+			if ($conn->connect_error==false) {
+				if ($id!= "" && $name!="" && $description!="" && $status!="") {
+					$query = "update categories set name = ?, description = ?, status = ? where id = ?";
+					$prepared_query = $conn->prepare($query);
+					$prepared_query->bind_param('sssi',$name,$description,$status,$id);
+					if ($prepared_query->execute()) {
+
+						header("Location:".$_SERVER['HTTP_REFERER']);
+					}
+					else{
+
 						header("Location:".$_SERVER['HTTP_REFERER']);
 					}
 				}
@@ -63,6 +110,33 @@
 				}
 			}
 			else{
+
+				header("Location:".$_SERVER['HTTP_REFERER']);
+			}
+		}
+
+		public function destroy($id){
+			$conn = connect();
+			if ($conn->connect_error==false) {
+				if ($id != "") {
+					$query = "delete from categories where id = ?";
+					$prepared_query = $conn->prepare($query);
+					$prepared_query->bind_param('i',$id);
+					if($prepared_query->execute()){
+
+						header("Location:".$_SERVER['HTTP_REFERER']);
+					}
+					else{
+
+						header("Location:".$_SERVER['HTTP_REFERER']);
+					}
+				}
+				else{
+					header("Location:".$_SERVER['HTTP_REFERER']);
+				}
+			}
+			else{
+
 				header("Location:".$_SERVER['HTTP_REFERER']);
 			}
 		}
